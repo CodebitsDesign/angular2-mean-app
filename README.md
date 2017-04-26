@@ -234,8 +234,9 @@ $ git config --global \
 
 ## Publish this local project on GitHub using command line
 Step 1. [Create a new repository](https://help.github.com/articles/creating-a-new-repository/) on GitHub. To avoid errors, do not initialize the new repository with `README`, `license`, or `gitignore` files. 
+
 ```
-Repository name: angular4-material-frontend
+Repository name: angular2-mean-app
 ```
 
 Step 2. Open Terminal and change the current working directory to your local project. 
