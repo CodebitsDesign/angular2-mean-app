@@ -32,17 +32,168 @@ And open <http://localhost:4200> in your browser.
 
 ## Adding Angular Material
 Material Design components for Angular apps
+<https://material.angular.io/guide/getting-started>
+
+Step 1: Install Angular Material
 ```bash
 $ yarn add @angular/material
 ```
+Step 2: Animations
+Install the `@angular/animations` module and include the `BrowserAnimationsModule` in your app.
+```bash
+$ yarn add @angular/animations
+```
+
+```typescript
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+
+@NgModule({
+  ...
+  imports: [BrowserAnimationsModule],
+  ...
+})
+export class PizzaPartyAppModule { }
+```
+
+Step 3: Import the component modules
+Import the NgModule for each component you want to use:
+```typescript
+import {MdButtonModule, MdCheckboxModule} from '@angular/material';
+
+@NgModule({
+  ...
+  imports: [MdButtonModule, MdCheckboxModule],
+  ...
+})
+export class PizzaPartyAppModule { }
+```
+
+Step 4: Include a theme
+Including a theme is required to apply all of the core and theme styles to your application.
+
+To get started with a prebuilt theme, include the following in your app's index.html:
+
+```html
+<link href="../node_modules/@angular/material/prebuilt-themes/indigo-pink.css" rel="stylesheet">
+```
+
+Step 5: Gesture Support
+Some components (md-slide-toggle, md-slider, mdTooltip) rely on `HammerJS` for gestures. In order to get the full feature-set of these components, HammerJS must be loaded into the application.
+```bash
+$ yarn add hammerjs
+```
+After installing, import it on your app's root module.
+```typescript
+import 'hammerjs';
+```
+
+Step 6 (Optional): Add Material Icons
+If you want to use the md-icon component with the official Material Design Icons, load the icon font in your index.html.
+```html
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+```
+[Material Icons Guide](https://google.github.io/material-design-icons/)
+
 
 ## Adding Express
 > Angular CLI comes with a command `ng build`, which bundles your angular app into a dist folder, or a folder that you may specify in the `angular-cli.json` file. This is what our express app will point to.
 
-Install express and body-parser as dependecies.
+Install `express` and `body-parser` as dependecies.
 ```bash
 $ yarn add express body-parser
 ```
+
+Then create a file `server.js` and a folder `server` in the root of our angular project.
+
+in `~/Projects/angular2-mean-app/`
+```bash
+$ mkdir server
+```
+$ vim server.js
+```javascript
+// Get dependencies
+const express = require('express');
+const path = require('path');
+const http = require('http');
+const bodyParser = require('body-parser');
+
+// Get our API routes
+const api = require('./server/routes/api');
+
+const app = express();
+
+// Parsers for POST data
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// Point static path to dist
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Set our api routes
+app.use('/api', api);
+
+// Catch all other routes and return the index file
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/index.html'));
+});
+
+/**
+ * Get port from environment and store in Express.
+ */
+const port = process.env.PORT || '3000';
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+const server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+server.listen(port, () => console.log(`API running on localhost:${port}`));
+
+```
+> with an `/api` route and all other routes are directed towards the `dist/index.html` page. This catch all route, denoted with `*`, MUST come last after all other API routes have been defined.
+
+
+The `/api` route points to a file `./server/routes/api.js`.
+$ vim server/routes/api.js
+```javascript
+const express = require('express');
+const router = express.Router();
+
+/* GET api listing. */
+router.get('/', (req, res) => {
+  res.send('api works');
+});
+
+module.exports = router;
+
+```
+
+Since the _catch all_ route is pointing to `dist/index.html`, we need to do a `build` of the angular app.
+```bash
+$ ng build
+```
+> This creates the `dist` folder with the angular 2 app built files. 
+
+Now we can `serve` the app with express.
+```bash
+$ node server.js
+```
+> Going to `http://localhost:3000` should load the app, and `http://localhost:3000/api`
+
+## Server data
+[Easily Develop Node.js and MongoDB Apps with Mongoose](https://scotch.io/tutorials/using-mongoosejs-in-node-js-and-mongodb-applications)
+> [mongoose](http://mongoosejs.com/) is an object modeling package for Node that essentially works like an ORM and allows us to have access to the MongoDB commands for CRUD simply and easily.
+
+```bash
+$ yarn add mongoose
+```
+
+
+
 
 ## Using Git-Credentials Helper - providing usernames and passwords to Git
 ```bash
@@ -81,8 +232,15 @@ $ git config --global \
   <Github_Username>
 ```
 
+## Publish this local project on GitHub using command line
+Step 1. [Create a new repository](https://help.github.com/articles/creating-a-new-repository/) on GitHub. To avoid errors, do not initialize the new repository with `README`, `license`, or `gitignore` files. 
+```
+Repository name: angular4-material-frontend
+```
 
-## Create a new repository on the command line
+Step 2. Open Terminal and change the current working directory to your local project. 
+Then process git commands:
+
 ```bash
 $ echo "# angular2-mean-app" >> README.md
 $ git init
@@ -97,6 +255,7 @@ $ git push -u origin master
 $ git remote add origin https://github.com/CodebitsDesign/angular2-mean-app.git
 $ git push -u origin master
 ```
+> If you use `-u` in the command, it will remember your preferences for remote and branch and you can simply use the command `git push` next time.
 
 
 -----------------------------
